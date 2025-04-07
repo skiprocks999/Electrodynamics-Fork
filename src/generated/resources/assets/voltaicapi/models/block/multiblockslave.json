@@ -1,0 +1,10 @@
+{
+  "loader": "voltaicapi:electrodynamicsslavenodeloader",
+  "model": {
+    "parent": "voltaicapi:block/multisubnode"
+  },
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "voltaicapi:block/multisubnode"
+  }
+}

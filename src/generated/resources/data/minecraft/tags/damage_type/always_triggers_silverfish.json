@@ -1,6 +1,6 @@
 {
   "values": [
-    "electrodynamics:electricity",
-    "electrodynamics:radiation"
+    "voltaicapi:electricity",
+    "voltaicapi:radiation"
   ]
 }

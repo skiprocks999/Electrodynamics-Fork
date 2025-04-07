@@ -1,0 +1,87 @@
+package voltaicapi.prefab.screen.component.types.wrapper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import voltaicapi.prefab.inventory.container.types.GenericContainerBlockEntity;
+import voltaicapi.prefab.screen.GenericScreen;
+import voltaicapi.prefab.screen.component.button.type.ButtonTankSlider;
+import voltaicapi.prefab.screen.component.types.ScreenComponentSimpleLabel;
+import voltaicapi.prefab.screen.component.types.gauges.ScreenComponentGasGauge;
+import voltaicapi.prefab.screen.component.utils.AbstractScreenComponent;
+import voltaicapi.prefab.tile.GenericTile;
+import voltaicapi.prefab.tile.components.IComponentType;
+import voltaicapi.prefab.tile.components.utils.IComponentGasHandler;
+import voltaicapi.prefab.utilities.math.Color;
+import net.minecraft.network.chat.Component;
+
+public class WrapperCyclableGasGauge {
+
+    private int gauge = 0;
+    private List<AbstractScreenComponent> components = new ArrayList<>();
+
+    public WrapperCyclableGasGauge(int x, int y, GenericContainerBlockEntity<? extends GenericTile> container, GenericScreen<?> screen, boolean inputTanks) {
+
+        int yOffset = 0;
+
+        components.add(screen.addComponent(new ScreenComponentSimpleLabel(x + 4, y + yOffset, 7, Color.WHITE, () -> Component.literal("" + (gauge + 1)))));
+
+        yOffset += 8;
+
+        components.add(screen.addComponent(new ScreenComponentGasGauge(() -> {
+            GenericTile tile = container.getSafeHost();
+            if (tile == null) {
+                return null;
+            }
+            IComponentGasHandler handler = tile.getComponent(IComponentType.GasHandler);
+            if (handler == null) {
+                return null;
+            }
+            return inputTanks ? handler.getInputTanks()[gauge] : handler.getOutputTanks()[gauge];
+        }, x, y + yOffset)));
+
+        yOffset += 50;
+
+        components.add(screen.addComponent(new ButtonTankSlider(ButtonTankSlider.TankSliderPair.LEFT, x, y + yOffset).setOnPress(button -> {
+            GenericTile tile = container.getSafeHost();
+            if (tile == null) {
+                return;
+            }
+            IComponentGasHandler handler = tile.getComponent(IComponentType.GasHandler);
+            if (handler == null) {
+                return;
+            }
+            int size = inputTanks ? handler.getInputTanks().length : handler.getOutputTanks().length;
+
+            gauge--;
+
+            if (gauge < 0) {
+                gauge = size - 1;
+            }
+        })));
+
+        components.add(screen.addComponent(new ButtonTankSlider(ButtonTankSlider.TankSliderPair.RIGHT, x + 8, y + yOffset).setOnPress(button -> {
+            GenericTile tile = container.getSafeHost();
+            if (tile == null) {
+                return;
+            }
+            IComponentGasHandler handler = tile.getComponent(IComponentType.GasHandler);
+            if (handler == null) {
+                return;
+            }
+            int size = inputTanks ? handler.getInputTanks().length : handler.getOutputTanks().length;
+
+            gauge++;
+
+            if (size <= gauge) {
+                gauge = 0;
+            }
+        })));
+
+    }
+
+    public List<AbstractScreenComponent> getComponents() {
+        return components;
+    }
+
+}
